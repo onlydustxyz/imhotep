@@ -1,0 +1,22 @@
+name: Protostar - Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  protostar-test:
+      name: Run Protostar Tests
+      runs-on: ubuntu-latest
+      steps:
+        - name: Checkout Code
+          uses: actions/checkout@v2
+          with:
+            submodules: recursive
+        - name: Install Protostar
+          run: |
+            curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
+            echo "~/.protostar/dist/protostar/" >> $GITHUB_PATH
+        - name: Run tests
+          run: protostar test
