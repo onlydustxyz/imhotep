@@ -16,7 +16,7 @@ jobs:
             submodules: recursive
         - name: Install Protostar
           run: |
-            curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash
+            curl -L https://raw.githubusercontent.com/software-mansion/protostar/master/install.sh | bash -s -- -v 0.5.0
             echo "~/.protostar/dist/protostar/" >> $GITHUB_PATH
         - name: Run tests
           run: protostar test
