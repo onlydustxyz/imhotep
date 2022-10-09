@@ -27,6 +27,8 @@
 
 Implementing the EVM in Cairo is both a fun technical challenge and an actual way to port Solidity smart contracts to Starknet.
 
+We are talking here about an in-contract Ethereum bytecode interpreter. This is not the same approach as [Warp](https://github.com/NethermindEth/warp), which is a Solidity->Cairo transpiler.
+
 It leads the way to more complex usecases, such as a full-fledged EVM-compatible layer 3.
 
 ## 🎗️ Prerequisites
