@@ -13,16 +13,12 @@ func storage(key: Bytes32) -> (value: Bytes32) {
 }
 
 func _sstore{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(key: Bytes32, value: Bytes32) {
-    // Will somehow have to retrieve the address from the context.
-    const address = 0;
     storage.write(key, value);
 
     return ();
 }
 
 func _sload{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(key: Bytes32) -> (value: Bytes32) {
-    // Will somehow have to retrieve the address from the context.
-    const address = 0;
     let value = storage.read(key);
 
     return (value);
