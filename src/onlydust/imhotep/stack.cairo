@@ -4,6 +4,7 @@ from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.math_cmp import is_not_zero
 from starkware.cairo.common.bool import FALSE
 from starkware.cairo.common.math import assert_lt_felt
+from starkware.cairo.common.alloc import alloc
 
 struct StackStruct {
     size: felt,
@@ -13,7 +14,7 @@ struct StackStruct {
 namespace Stack {
     const MAX_STACK_SIZE = 1024;
 
-    func pop{stack: StackStruct}() -> (slot: Uint256) {
+    func pop{range_check_ptr, stack: StackStruct}() -> (slot: Uint256) {
         with_attr error_message("pop: stack is empty") {
             let (value) = is_empty();
             assert value = FALSE;
@@ -32,7 +33,7 @@ namespace Stack {
         return ();
     }
 
-    func peek{stack: StackStruct}() -> (slot: Uint256) {
+    func peek{range_check_ptr, stack: StackStruct}() -> (slot: Uint256) {
         with_attr error_message("peek: stack is empty") {
             let (value) = is_empty();
             assert value = FALSE;
@@ -41,8 +42,15 @@ namespace Stack {
         return (slot=slot);
     }
 
-    func is_empty{stack: StackStruct}() -> (value: felt) {
+    func is_empty{range_check_ptr, stack: StackStruct}() -> (value: felt) {
         let value = is_not_zero(stack.size);
         return (value=1 - value);
+    }
+
+    func init() -> (stack: StackStruct) {
+        alloc_locals;
+        let slots: Uint256* = alloc();
+        let stack = StackStruct(size=0, slots=slots);
+        return (stack=stack);
     }
 }

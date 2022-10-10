@@ -1,7 +1,7 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-from src.onlydust.imhotep.stack import Stack, StackStruct
+from src.onlydust.imhotep.stack import Stack
 from starkware.cairo.common.uint256 import Uint256
 from starkware.cairo.common.alloc import alloc
 
@@ -10,8 +10,7 @@ func test_should_revert_when_stack_is_empty{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     %{ expect_revert("TRANSACTION_FAILED", "pop: stack is empty") %}
-    let slots: Uint256* = alloc();
-    let stack = StackStruct(size=0, slots=slots);
+    let (stack) = Stack.init();
     Stack.pop{stack=stack}();
     return ();
 }
@@ -20,11 +19,11 @@ func test_should_revert_when_stack_is_empty{
 func test_should_decrease_stack_size{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
-    alloc_locals;
-    let (local slots: Uint256*) = alloc();
-    assert slots[0] = Uint256(0, 0);
-    let stack = StackStruct(size=1, slots=slots);
-    Stack.pop{stack=stack}();
+    let (stack) = Stack.init();
+    with stack {
+        Stack.push(Uint256(0, 0));
+        Stack.pop();
+    }
     assert stack.size = 0;
     return ();
 }
@@ -34,15 +33,16 @@ func test_should_return_last_slot_and_update_peek{
     syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, range_check_ptr
 }() {
     alloc_locals;
-    let (local slots: Uint256*) = alloc();
-    assert slots[0] = Uint256(0, 0);
-    assert slots[1] = Uint256(1, 0);
-    let stack = StackStruct(size=2, slots=slots);
+    let (stack) = Stack.init();
     with stack {
-        let (slot) = Stack.pop();
-        let (peek) = Stack.peek();
+        let slot_0 = Uint256(0, 0);
+        Stack.push(slot_0);
+        let slot_1 = Uint256(1, 0);
+        Stack.push(slot_1);
+        let (local slot) = Stack.pop();
+        let (local peek) = Stack.peek();
     }
-    assert slot = slots[1];
-    assert peek = slots[0];
+    assert slot = slot_1;
+    assert peek = slot_0;
     return ();
 }
