@@ -9,9 +9,9 @@ cairo_path = ["src"]
 
 [profile.ci.protostar.shared_command_configs]
 no_color = true
-target = "src/onlydust/zk-evm/tests"
+target = "src/onlydust/imhotep/tests"
 
 ["protostar.contracts"]
 evm = [
-  "./src/onlydust/zk-evm/evm.cairo",
+  "./src/onlydust/imhotep/evm.cairo",
 ]
