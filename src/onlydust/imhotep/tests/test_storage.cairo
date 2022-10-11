@@ -1,7 +1,8 @@
 %lang starknet
 from starkware.cairo.common.cairo_builtins import  HashBuiltin
+from starkware.cairo.common.uint256 import Uint256 as Bytes32
 
-from src.onlydust.imhotep.evm import _sstore, _sload, Bytes32
+from src.onlydust.imhotep.evm import _sstore, _sload
 
 @external
 func test_storage{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() {
