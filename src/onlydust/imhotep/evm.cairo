@@ -1,12 +1,7 @@
 %lang starknet
 
 from starkware.cairo.common.cairo_builtins import HashBuiltin
-
-// Since 32 bytes cannot be stored into a single field element, we sepeate the higher and lower 16 bytes.
-struct Bytes32 {
-    low: felt,
-    high: felt,
-}
+from starkware.cairo.common.uint256 import Uint256 as Bytes32
 
 @storage_var
 func storage(key: Bytes32) -> (value: Bytes32) {
