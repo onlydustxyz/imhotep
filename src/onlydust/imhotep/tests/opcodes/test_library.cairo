@@ -26,11 +26,12 @@ func test_should_execute_add_op{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
     a_low, a_high, b_low, b_high
 ) {
     alloc_locals;
+    let (opcodes) = Opcodes.build();
     let (stack) = Stack.init();
     let a = Uint256(a_low, a_high);
     let b = Uint256(b_low, b_high);
     let (args) = alloc();
-    with stack {
+    with opcodes, stack {
         Stack.push(a);
         Stack.push(b);
         Opcodes.execute(Opcodes.ADD_CODE, 0, args);
@@ -62,11 +63,12 @@ func test_should_execute_mul_op{syscall_ptr: felt*, pedersen_ptr: HashBuiltin*, 
     a_low, a_high, b_low, b_high
 ) {
     alloc_locals;
+    let (opcodes) = Opcodes.build();
     let (stack) = Stack.init();
     let a = Uint256(a_low, a_high);
     let b = Uint256(b_low, b_high);
     let (args) = alloc();
-    with stack {
+    with opcodes, stack {
         Stack.push(a);
         Stack.push(b);
         Opcodes.execute(Opcodes.MUL_CODE, 0, args);

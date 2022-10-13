@@ -1,6 +1,12 @@
 %lang starknet
 
 from src.onlydust.imhotep.stack import Stack, StackStruct
+from starkware.cairo.common.alloc import alloc
+from starkware.cairo.common.registers import get_label_location
+from starkware.cairo.common.invoke import invoke
+from starkware.cairo.common.memcpy import memcpy
+from starkware.cairo.common.uint256 import Uint256
+from starkware.cairo.lang.compiler.lib.registers import get_fp_and_pc
 
 from src.onlydust.imhotep.opcodes.add import ADD
 from src.onlydust.imhotep.opcodes.mul import MUL
@@ -163,19 +169,28 @@ namespace Opcodes {
     const INVALID_CODE = 0xfe;
     const SELFDESTRUCT_CODE = 0xff;
 
-    func execute{range_check_ptr, stack: StackStruct}(key: felt, n_args: felt, args: felt*) {
-        if (key == STOP_CODE) {
-            STOP();
-            return ();
-        }
-        if (key == ADD_CODE) {
-            ADD();
-            return ();
-        }
-        if (key == MUL_CODE) {
-            MUL();
-            return ();
-        }
+    func build() -> (opcodes: codeoffset*) {
+        let (opcodes: codeoffset*) = alloc();
+        assert opcodes[0] = STOP;
+        assert opcodes[1] = ADD;
+        assert opcodes[2] = MUL;
+        return (opcodes=opcodes);
+    }
+
+    func execute{range_check_ptr, opcodes: codeoffset*, stack: StackStruct}(
+        key: felt, n_args: felt, args: felt*
+    ) {
+        alloc_locals;
+        let (__fp__, _) = get_fp_and_pc();
+        let (location) = get_label_location(opcodes[key]);
+        let (local all_args) = alloc();
+        assert all_args[0] = range_check_ptr;
+        memcpy(all_args + 1, cast(&stack, felt*), StackStruct.SIZE);
+        memcpy(all_args + 1 + StackStruct.SIZE, args, n_args);
+        let n_all_args = 1 + StackStruct.SIZE + n_args;
+        invoke(location, n_all_args, all_args);
+        let range_check_ptr = [ap - 3];
+        let stack = StackStruct([ap - 2], cast([ap - 1], Uint256*));
         return ();
     }
 }
