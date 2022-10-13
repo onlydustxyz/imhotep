@@ -5,11 +5,11 @@ from starkware.cairo.common.uint256 import Uint256 as Bytes32
 from starkware.cairo.common.alloc import alloc
 
 @storage_var
-func len_contr_bytecode() -> (len: felt) {
+func bytecode_len() -> (len: felt) {
 }
 
 @storage_var
-func contr_bytecode(index: felt) -> (res: felt) {
+func bytecode(index: felt) -> (res: felt) {
 }
 
 @storage_var
@@ -17,45 +17,45 @@ func storage(key: Bytes32) -> (value: Bytes32) {
 }
 
 @constructor
-func constructor{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(contr_bytecode_len: felt, contr_bytecode: felt*) {
-    len_contr_bytecode.write(contr_bytecode_len);
-    process_array(contr_bytecode_len, contr_bytecode);
+func constructor{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_bytecode_len: felt, _bytecode: felt*) {
+    bytecode_len.write(_bytecode_len);
+    store_bytecode_loop(_bytecode_len, _bytecode);
 
     return ();
 }
 
-func process_array{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(code_len: felt, code: felt*) {
-    if (code_len == 0) { 
+func store_bytecode_loop{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_bytecode_len: felt, _bytecode: felt*) {
+    if (_bytecode_len == 0) { 
         return (); 
     }
 
-    contr_bytecode.write(code_len - 1, code[code_len - 1]); 
-    process_array(code_len - 1, code);
+    bytecode.write(_bytecode_len - 1, _bytecode[_bytecode_len - 1]); 
+    store_bytecode_loop(_bytecode_len - 1, _bytecode);
     return ();
 }
 
-func build_bytecode{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(code_len: felt, code: felt*) -> (code_len: felt, code: felt*) {
-    if (code_len == 0) {
-        return (code_len=0, code=code);
+func read_bytecode_loop{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(_bytecode_len: felt, _bytecode: felt*) -> (_bytecode_len: felt, _bytecode: felt*) {
+    if (_bytecode_len == 0) {
+        return (_bytecode_len=0, _bytecode=_bytecode);
     }
 
-    let (res) = contr_bytecode.read(code_len - 1);
-    assert [code + code_len - 1] = res;
-    let (code_len, code) = build_bytecode(code_len - 1, code);
-    return (code_len=code_len, code=code);
+    let (res) = bytecode.read(_bytecode_len - 1);
+    assert [_bytecode + _bytecode_len - 1] = res;
+    let (_bytecode_len, _bytecode) = read_bytecode_loop(_bytecode_len - 1, _bytecode);
+    return (_bytecode_len=_bytecode_len, _bytecode=_bytecode);
 }
 
 @view
-func get_bytecode{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> (code_len: felt, code: felt*) {
+func get_bytecode{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}() -> (_bytecode_len: felt, _bytecode: felt*) {
     alloc_locals;
-    let (len) = len_contr_bytecode.read();
+    let (len) = bytecode_len.read();
     local len = len;
 
     let (bytecode: felt*) = alloc();
-    build_bytecode(len, bytecode);
+    read_bytecode_loop(len, bytecode);
 
 
-    return (code_len=len, code=bytecode);
+    return (_bytecode_len=len, _bytecode=bytecode);
 }
 
 func _sstore{pedersen_ptr: HashBuiltin*, syscall_ptr: felt*, range_check_ptr}(key: Bytes32, value: Bytes32) {

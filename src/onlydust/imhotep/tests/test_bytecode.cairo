@@ -13,7 +13,7 @@ namespace EvmBytecode {
 @external
 func __setup__() {
 
-    %{ context.contract_address = deploy_contract("./src/onlydust/imhotep/evm.cairo", { "contr_bytecode": [1, 2, 3] }).contract_address %}
+    %{ context.contract_address = deploy_contract("./src/onlydust/imhotep/evm.cairo", { "_bytecode": [1, 2, 3] }).contract_address %}
     return ();
 }
 
