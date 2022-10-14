@@ -5,6 +5,7 @@ from starkware.cairo.common.math_cmp import is_not_zero
 from starkware.cairo.common.bool import FALSE
 from starkware.cairo.common.math import assert_lt_felt
 from starkware.cairo.common.alloc import alloc
+from starkware.cairo.common.memcpy import memcpy
 
 struct StackStruct {
     size: felt,
@@ -15,12 +16,16 @@ namespace Stack {
     const MAX_STACK_SIZE = 1024;
 
     func pop{range_check_ptr, stack: StackStruct}() -> (slot: Bytes32) {
+        alloc_locals;
         with_attr error_message("pop: stack is empty") {
             let (value) = is_empty();
             assert value = FALSE;
         }
         let slot: Bytes32 = stack.slots[stack.size - 1];
-        let stack = StackStruct(size=stack.size - 1, slots=stack.slots);
+        let slots: felt* = alloc();
+        local size = stack.size - 1;
+        memcpy(slots, cast(stack.slots, felt*), size * Bytes32.SIZE);
+        let stack = StackStruct(size=size, slots=cast(slots, Bytes32*));
         return (slot=slot);
     }
 
